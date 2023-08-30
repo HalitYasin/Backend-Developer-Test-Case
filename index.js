@@ -16,7 +16,7 @@ const options = {
       version: '1.0.0',
     },
   },
-  apis: ['index.js'], // files containing annotations as above
+  apis: ['index.js', './Routes/*.js'], // files containing annotations as above
 };
 
 let db = new sqlite3.Database(process.env.DATABASE_URL, sqlite3.OPEN_READWRITE, (err) => {
