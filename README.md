@@ -11,7 +11,6 @@ This project is a backend application built using Express.js and SQLite3. It pro
   - [Running the Server](#running-the-server)
   - [API Documentation](#api-documentation)
 - [Endpoints](#endpoints)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Getting Started
