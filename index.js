@@ -1,9 +1,11 @@
 require('dotenv').config()
 
 const express = require('express')
+const cors = require('cors')
 const swaggerJsDoc = require('swagger-jsdoc')
 const swaggerUI = require('swagger-ui-express')
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('sqlite3').verbose()
+const tasksRoute = require('./Routes/tasks')
 
 const app = express()
 const PORT = process.env.PORT
@@ -37,6 +39,8 @@ const swaggerDocs = swaggerJsDoc(options)
 // console.log(swaggerDocs)
 
 app.use(express.json())
+app.use(cors())
+app.options("*", cors())
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
 
 /**
@@ -53,21 +57,6 @@ app.get("/", (req, res) => {
 	res.send('Hello World')
 })
 
-/**
- * @openapi
- * /:
- *   post:
- *     description: Create some data
- *     parameters:
- *     - name: title
- *       description: Title of the task.
- *     responses:
- *       201:
- *         description: Created.
- */
-
-app.post('/', (req, res) => {
-	res.status(201).send()
-})
+app.use('/tasks', tasksRoute)
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`))
