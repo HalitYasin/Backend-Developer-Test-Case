@@ -23,7 +23,6 @@ const options = {
 
 let db = new sqlite3.Database(process.env.DATABASE_URL, sqlite3.OPEN_READWRITE, (err) => {
   if (err) return console.error(err.message);
-  console.log('Connected to the tasks SQlite database.');
 });
 
 // Create table if not exists
@@ -47,6 +46,7 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
  * @openapi
  * /:
  *   get:
+ *     summary: Returns a static string
  *     description: Returns a static string
  *     responses:
  *       200:

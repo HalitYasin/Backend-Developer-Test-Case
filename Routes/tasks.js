@@ -18,10 +18,11 @@ const updateTask = `UPDATE tasks SET title = ?, description = ?, dueDate = ? WHE
  * @openapi
  * /tasks:
  *   get:
- *     description: Returns all tasks
+ *     summary: Return all tasks
+ *     description: Return all tasks
  *     responses:
  *       200:
- *         description: Returns all tasks
+ *         description: Return all tasks
  */
 router.get("/", (req, res) => {
   db.all(getAll, (err, rows) => {
@@ -81,6 +82,15 @@ router.get("/:id", getTask, (req, res) => {
  *         description: Success.
  */
 router.post("/", (req, res) => {
+  if (!req.body.title || !req.body.description || !isValidDatetime(req.body.dueDate)) {
+    return res.status(400).json({message: "All fields must be filled"})
+  }
+
+  const dueDateValid = isDateValid(req.body.dueDate)
+  if (!dueDateValid) {
+    return res.status(400).json({message: "Due date must be a future date"})
+  }
+
   let params = Object.values(req.body)
   db.run(insertTask, params, function(err) {
     if (err) {
@@ -97,6 +107,7 @@ router.post("/", (req, res) => {
  * @openapi
  * /tasks/{id}:
  *   patch:
+ *     summary: Update a single task
  *     description: Update a single task
  *     parameters:
  *     - in: path
@@ -121,6 +132,7 @@ router.post("/", (req, res) => {
  *       200:
  *         description: Success.
  */
+
 router.patch("/:id", getTask, (req, res) => {
   if (req.body?.title) {
     res.task.title = req.body.title
@@ -131,7 +143,11 @@ router.patch("/:id", getTask, (req, res) => {
   if (isValidDatetime(req.body?.dueDate)) {
     res.task.dueDate = req.body.dueDate
   }
-  
+
+  const dueDateValid = isDateValid(res.task.dueDate)
+  if (!dueDateValid) {
+    return res.status(400).json({message: "Due date must be a future date"})
+  }
   let params = [...Object.values(res.task)]
   params.push(params.shift())
   db.run(updateTask, params, (err) => {
@@ -185,10 +201,27 @@ function getTask (req, res, next) {
 
 function isValidDatetime(input) {
   const datetimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}$/
-  
+  let time
   if (!datetimeRegex.test(input)) {
     return false; // Format is not valid
   }
+  
   return true
 }
+
+function isDateValid(dateInput) {
+  try {
+    const dueDate = new Date(dateInput)
+    const dueDateInMS = dueDate.getTime()
+    const currentDate = Date.now()
+    if (dueDateInMS < currentDate) {
+      return false
+    }
+    return true
+  } catch {
+    console.log("Date time error")
+    return false
+  }
+}
+
 module.exports = router
